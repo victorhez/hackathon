@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: deeppulse-backend
+    env: python
+    plan: free
+    buildCommand: cd backend && pip install -r requirements.txt
+    startCommand: cd backend && uvicorn app.main:app --host 0.0.0.0 --port 10000
+    autoDeploy: true
+    envVars:
+      - key: CORS_ORIGINS
+        fromService:
+          type: web
+          name: deeppulse-frontend
+          envVarKey: VERCEL_URL
+      - key: APP_MODE
+        value: simulation
