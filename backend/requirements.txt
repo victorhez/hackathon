@@ -2,5 +2,4 @@ fastapi==0.115.6
 uvicorn[standard]==0.32.1
 pytest==8.3.4
 python-dotenv==1.0.0
-sui-sdk==0.38.0
 aiohttp==3.10.10
