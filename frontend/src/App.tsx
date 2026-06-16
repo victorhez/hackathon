@@ -151,7 +151,8 @@ function App() {
 
   const handleLogout = () => {
     try {
-      disconnect();
+      // useDisconnectWallet returns a mutation object with mutate method
+      disconnect.mutate();
     } catch (error) {
       console.error("Logout error:", error);
     } finally {
@@ -525,8 +526,8 @@ function DashboardView({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
           label="Total P&L"
-          value={`${data?.totals.net_pnl >= 0 ? "+" : ""}${data?.totals.net_pnl.toFixed(2) || "0.00"}`}
-          color={data?.totals.net_pnl >= 0 ? "text-success" : "text-danger"}
+          value={`${(data?.totals?.net_pnl ?? 0) >= 0 ? "+" : ""}${(data?.totals?.net_pnl ?? 0).toFixed(2)}`}
+          color={(data?.totals?.net_pnl ?? 0) >= 0 ? "text-success" : "text-danger"}
           icon={<TrendingUp />}
         />
         <StatCard
