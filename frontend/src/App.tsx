@@ -418,6 +418,29 @@ function DashboardView({
   chartData: any[];
 }) {
   const status = data?.status || "STOPPED";
+  const [shareMessage, setShareMessage] = useState<string | null>(null);
+
+  const handleShare = async () => {
+    try {
+      const netPnl = data?.totals?.net_pnl ?? 0;
+      const roi = (netPnl / 100).toFixed(2);
+      const shareText = `Check out my DeepPulse ROI! 🚀\nTotal ROI: ${netPnl >= 0 ? "+" : ""}${roi}%\nNet P&L: $${netPnl.toFixed(2)}\nCycles: ${data?.cycle_count || 0}\nSuccess Rate: ${((data?.success_rate || 0) * 100).toFixed(1)}%`;
+      
+      if (navigator.share) {
+        await navigator.share({
+          title: "DeepPulse ROI Performance",
+          text: shareText,
+          url: window.location.href,
+        });
+      } else {
+        await navigator.clipboard.writeText(shareText);
+        setShareMessage("Copied to clipboard!");
+        setTimeout(() => setShareMessage(null), 2000);
+      }
+    } catch (error) {
+      console.error("Share failed:", error);
+    }
+  };
   
   if (loading && !data) {
     return (
@@ -667,20 +690,72 @@ function DashboardView({
         </div>
 
         <div className="space-y-6">
-          <div className="bg-card border border-slate-800 rounded-3xl p-6">
-            <h3 className="text-xl font-bold mb-4">Execution Logs</h3>
-            <div className="space-y-2 max-h-80 overflow-y-auto">
-              {data?.execution_logs.length === 0 ? (
-                <div className="text-slate-400 text-sm py-4 text-center">No logs yet</div>
-              ) : (
-                data?.execution_logs.slice().reverse().map((log, i) => (
-                  <div key={i} className="text-sm py-2 border-b border-slate-800 last:border-0">
-                    <pre className="text-slate-300 text-xs overflow-x-auto">
-                      {JSON.stringify(log, null, 2)}
-                    </pre>
+          {/* ROI Generator */}
+          <div className="bg-card border border-slate-800 rounded-3xl p-6 relative">
+            {/* Share Toast */}
+            {shareMessage && (
+              <div className="absolute top-4 right-4 bg-success text-darker px-4 py-2 rounded-xl font-medium animate-bounce">
+                {shareMessage}
+              </div>
+            )}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-xl font-bold">ROI Performance</h3>
+              <button
+                onClick={() => handleShare()}
+                className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary to-secondary text-white rounded-xl font-medium hover:opacity-90 transition-all"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Share ROI
+              </button>
+            </div>
+
+            {/* ROI Summary */}
+            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl p-6 mb-4">
+              <div className="text-center">
+                <div className="text-slate-400 text-sm mb-2">Total ROI</div>
+                <div className={cn("text-4xl font-bold", (data?.totals?.net_pnl ?? 0) >= 0 ? "text-success" : "text-danger")}>
+                  {(data?.totals?.net_pnl ?? 0) >= 0 ? "+" : ""}{((data?.totals?.net_pnl ?? 0) / 100).toFixed(2)}%
+                </div>
+                <div className="text-slate-400 text-xs mt-1">Net P&L: ${(data?.totals?.net_pnl ?? 0).toFixed(2)}</div>
+              </div>
+            </div>
+
+            {/* Quick Stats */}
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="bg-slate-800/50 rounded-xl p-3">
+                <div className="text-slate-400 text-xs mb-1">Cycles</div>
+                <div className="text-white font-bold">{data?.cycle_count || 0}</div>
+              </div>
+              <div className="bg-slate-800/50 rounded-xl p-3">
+                <div className="text-slate-400 text-xs mb-1">Success Rate</div>
+                <div className="text-white font-bold">{((data?.success_rate || 0) * 100).toFixed(1)}%</div>
+              </div>
+              <div className="bg-slate-800/50 rounded-xl p-3">
+                <div className="text-slate-400 text-xs mb-1">Pools</div>
+                <div className="text-white font-bold">{data?.pools.length || 0}</div>
+              </div>
+              <div className="bg-slate-800/50 rounded-xl p-3">
+                <div className="text-slate-400 text-xs mb-1">Avg Time</div>
+                <div className="text-white font-bold">{(data?.avg_execution_ms || 0).toFixed(0)}ms</div>
+              </div>
+            </div>
+
+            {/* Pool Performance List */}
+            <div className="space-y-2">
+              <div className="text-slate-400 text-xs mb-2">Pool Performance</div>
+              {data?.pools.slice(0, 3).map((pool) => (
+                <div key={pool.pool} className="flex items-center justify-between bg-slate-800/30 rounded-lg p-3">
+                  <div>
+                    <div className="text-white font-medium text-sm">{pool.pool}</div>
+                    <div className="text-slate-400 text-xs">{pool.inventory.toFixed(2)} inventory</div>
                   </div>
-                ))
-              )}
+                  <div className={cn("font-bold text-sm", pool.net_pnl >= 0 ? "text-success" : "text-danger")}>
+                    {pool.net_pnl >= 0 ? "+" : ""}{pool.net_pnl.toFixed(2)}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
           
