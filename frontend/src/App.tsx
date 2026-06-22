@@ -577,9 +577,6 @@ function DashboardView({
         </div>
       </div>
 
-      {/* Visit Stats */}
-      <VisitStats stats={visitStats} />
-
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard
@@ -812,6 +809,9 @@ function DashboardView({
           </div>
         </div>
       </div>
+
+      {/* Visit Stats at bottom */}
+      <VisitStats stats={visitStats} />
     </div>
   );
 }
@@ -1025,53 +1025,53 @@ function VisitStats({ stats }: { stats: VisitStats | null }) {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card border border-slate-800 rounded-3xl p-6 mb-6"
+      className="bg-card border border-slate-800 rounded-3xl p-4"
     >
-      <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
-        <Activity className="text-primary" />
+      <h3 className="text-lg font-bold mb-3 flex items-center gap-2">
+        <Activity className="text-primary w-5 h-5" />
         Visitor Analytics
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Total Visits - Main One */}
-        <div className="md:col-span-1 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl p-6 border border-primary/30">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-slate-300 font-medium">Total Visits</span>
-            <div className="p-3 rounded-xl bg-primary/20 text-primary">
-              <Eye className="w-6 h-6" />
+        <div className="md:col-span-1 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-xl p-4 border border-primary/30">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-slate-300 font-medium text-sm">Total Visits</span>
+            <div className="p-2 rounded-lg bg-primary/20 text-primary">
+              <Eye className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+          <div className="text-2xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
             {stats?.total_visits.toLocaleString() || "0"}
           </div>
-          <div className="text-xs text-slate-400 mt-2">All time visits</div>
+          <div className="text-xs text-slate-400 mt-1">All time visits</div>
         </div>
 
         {/* Daily Visits */}
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-slate-300 font-medium">Daily Visits</span>
-            <div className="p-3 rounded-xl bg-success/20 text-success">
-              <Calendar className="w-6 h-6" />
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-slate-300 font-medium text-sm">Daily Visits</span>
+            <div className="p-2 rounded-lg bg-success/20 text-success">
+              <Calendar className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-success">
+          <div className="text-2xl font-bold text-success">
             {stats?.daily_visits.toLocaleString() || "0"}
           </div>
-          <div className="text-xs text-slate-400 mt-2">Today's count</div>
+          <div className="text-xs text-slate-400 mt-1">Today's count</div>
         </div>
 
         {/* Total Users */}
-        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-slate-300 font-medium">Total Users</span>
-            <div className="p-3 rounded-xl bg-secondary/20 text-secondary">
-              <Users className="w-6 h-6" />
+        <div className="bg-slate-800/50 rounded-xl p-4 border border-slate-700">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-slate-300 font-medium text-sm">Total Users</span>
+            <div className="p-2 rounded-lg bg-secondary/20 text-secondary">
+              <Users className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-secondary">
+          <div className="text-2xl font-bold text-secondary">
             {stats?.total_users.toLocaleString() || "0"}
           </div>
-          <div className="text-xs text-slate-400 mt-2">Unique visitors</div>
+          <div className="text-xs text-slate-400 mt-1">Unique visitors</div>
         </div>
       </div>
     </motion.div>
