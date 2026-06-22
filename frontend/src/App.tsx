@@ -224,11 +224,6 @@ function App() {
           <ConnectButton />
         </header>
 
-        {/* Visit Stats on Landing Page */}
-        <div className="px-8">
-          <VisitStats stats={visitStats} />
-        </div>
-
         <main className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-4xl w-full grid lg:grid-cols-2 gap-12 items-center">
             <motion.div
@@ -291,6 +286,11 @@ function App() {
             </motion.div>
           </div>
         </main>
+
+        {/* Visit Stats on Landing Page at bottom */}
+        <div className="px-8 pb-8">
+          <VisitStats stats={visitStats} />
+        </div>
       </div>
     );
   }
