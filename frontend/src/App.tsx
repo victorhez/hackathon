@@ -19,6 +19,9 @@ import {
   Home,
   LineChart,
   Cog,
+  Users,
+  Eye,
+  Calendar,
 } from "lucide-react";
 import {
   AreaChart,
@@ -35,7 +38,7 @@ import { twMerge } from "tailwind-merge";
 import DeepPulseLogo from "./assets/DeepPulse Logo.jpeg";
 import DeepPulseBanner from "./assets/DeepPulse Banner.jpeg";
 import { api } from "./api";
-import type { DashboardResponse } from "./types";
+import type { DashboardResponse, VisitStats } from "./types";
 
 // Utility for tailwind classes
 function cn(...inputs: any[]) {
@@ -49,6 +52,7 @@ function App() {
   const [view, setView] = useState<"landing" | "dashboard" | "analytics" | "settings">("landing");
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
   const [saving, setSaving] = useState(false);
+  const [visitStats, setVisitStats] = useState<VisitStats | null>(null);
   const [configForm, setConfigForm] = useState({
     gamma: "0.15",
     cycle_interval_ms: "2000",
@@ -77,6 +81,26 @@ function App() {
       setLoading(false);
     }
   };
+
+  // Track visit on app load
+  useEffect(() => {
+    const trackVisit = async () => {
+      try {
+        const stats = await api.incrementVisit(account?.address);
+        setVisitStats(stats);
+      } catch (e) {
+        console.error("Failed to track visit", e);
+        // Fallback to just get stats if increment fails
+        try {
+          const stats = await api.getVisitStats();
+          setVisitStats(stats);
+        } catch (e2) {
+          console.error("Failed to get visit stats", e2);
+        }
+      }
+    };
+    trackVisit();
+  }, []);
 
   // Initialize
   useEffect(() => {
@@ -199,6 +223,11 @@ function App() {
           </div>
           <ConnectButton />
         </header>
+
+        {/* Visit Stats on Landing Page */}
+        <div className="px-8">
+          <VisitStats stats={visitStats} />
+        </div>
 
         <main className="flex-1 flex items-center justify-center p-8">
           <div className="max-w-4xl w-full grid lg:grid-cols-2 gap-12 items-center">
@@ -343,6 +372,7 @@ function App() {
               onKill={handleKill}
               onSwitchMode={handleSwitchMode}
               chartData={chartData}
+              visitStats={visitStats}
             />
           )}
           {view === "analytics" && (
@@ -406,6 +436,7 @@ function DashboardView({
   onKill,
   onSwitchMode,
   chartData,
+  visitStats,
 }: {
   data: DashboardResponse | null;
   loading: boolean;
@@ -416,6 +447,7 @@ function DashboardView({
   onKill: () => void;
   onSwitchMode: (m: string) => void;
   chartData: any[];
+  visitStats: any;
 }) {
   const status = data?.status || "STOPPED";
   const [shareMessage, setShareMessage] = useState<string | null>(null);
@@ -544,6 +576,9 @@ function DashboardView({
           </div>
         </div>
       </div>
+
+      {/* Visit Stats */}
+      <VisitStats stats={visitStats} />
 
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -980,6 +1015,64 @@ function StatCard({ label, value, color, icon }: { label: string; value: string;
       </div>
       <div className={cn("text-3xl font-bold", color)}>
         {value}
+      </div>
+    </motion.div>
+  );
+}
+
+function VisitStats({ stats }: { stats: VisitStats | null }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="bg-card border border-slate-800 rounded-3xl p-6 mb-6"
+    >
+      <h3 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <Activity className="text-primary" />
+        Visitor Analytics
+      </h3>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Total Visits - Main One */}
+        <div className="md:col-span-1 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-2xl p-6 border border-primary/30">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-300 font-medium">Total Visits</span>
+            <div className="p-3 rounded-xl bg-primary/20 text-primary">
+              <Eye className="w-6 h-6" />
+            </div>
+          </div>
+          <div className="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+            {stats?.total_visits.toLocaleString() || "0"}
+          </div>
+          <div className="text-xs text-slate-400 mt-2">All time visits</div>
+        </div>
+
+        {/* Daily Visits */}
+        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-300 font-medium">Daily Visits</span>
+            <div className="p-3 rounded-xl bg-success/20 text-success">
+              <Calendar className="w-6 h-6" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-success">
+            {stats?.daily_visits.toLocaleString() || "0"}
+          </div>
+          <div className="text-xs text-slate-400 mt-2">Today's count</div>
+        </div>
+
+        {/* Total Users */}
+        <div className="bg-slate-800/50 rounded-2xl p-6 border border-slate-700">
+          <div className="flex items-center justify-between mb-4">
+            <span className="text-slate-300 font-medium">Total Users</span>
+            <div className="p-3 rounded-xl bg-secondary/20 text-secondary">
+              <Users className="w-6 h-6" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-secondary">
+            {stats?.total_users.toLocaleString() || "0"}
+          </div>
+          <div className="text-xs text-slate-400 mt-2">Unique visitors</div>
+        </div>
       </div>
     </motion.div>
   );

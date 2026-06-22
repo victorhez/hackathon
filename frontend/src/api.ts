@@ -1,4 +1,4 @@
-import type { DashboardResponse } from "./types";
+import type { DashboardResponse, VisitStats } from "./types";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000/api";
 
@@ -33,4 +33,10 @@ export const api = {
       method: "PUT",
       body: JSON.stringify(payload),
     }),
+  incrementVisit: (userId?: string) =>
+    request<VisitStats>("/visits/increment", {
+      method: "POST",
+      body: userId ? JSON.stringify({ user_id: userId }) : undefined,
+    }),
+  getVisitStats: () => request<VisitStats>("/visits/stats"),
 };

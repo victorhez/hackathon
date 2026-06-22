@@ -9,6 +9,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .agent import AgentService
+from .visits import increment_visit, get_visit_stats
 
 # Load environment variables from .env file
 load_dotenv()
@@ -87,3 +88,14 @@ async def stop() -> dict[str, Any]:
 @app.post("/api/kill")
 async def kill() -> dict[str, Any]:
     return await service.kill()
+
+
+@app.post("/api/visits/increment")
+async def track_visit(payload: dict[str, str] | None = None) -> dict[str, Any]:
+    user_id = payload.get("user_id") if payload else None
+    return increment_visit(user_id)
+
+
+@app.get("/api/visits/stats")
+async def visit_stats() -> dict[str, Any]:
+    return get_visit_stats()

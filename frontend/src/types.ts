@@ -1,3 +1,9 @@
+export type VisitStats = {
+  total_visits: number;
+  daily_visits: number;
+  total_users: number;
+};
+
 export type DashboardResponse = {
   status: string;
   cycle_count: number;
